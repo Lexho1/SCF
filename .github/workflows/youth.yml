@@ -1,0 +1,44 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: 中青看点
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+  watch:
+    types: started
+  repository_dispatch:
+    types: youth
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:		
+      YOUTH_HEADER: ${{ secrets.YOUTH_HEADER }}		
+      YOUTH_ARTBODY: ${{ secrets.YOUTH_ARTBODY }}		
+      YOUTH_REDBODY: ${{ secrets.YOUTH_REDBODY }}		
+      YOUTH_TIME: ${{ secrets.YOUTH_TIME }}
+    steps:
+      - name: Checkout
+        run: |
+          git clone https://github.com/Sunert/Scripts.git ~/Scripts
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: npm install
+        if: env.YOUTH_HEADER
+        run: |
+          cd ~/Scripts
+          npm install
+      - name: '运行 【中青看点】'
+        if: env.YOUTH_HEADER
+        run: |
+          cd ~/Scripts
+          node Task/youth.js
+        env:
+          YOUTH_NOTIFY_CONTROL: ${{ secrets.YOUTH_NOTIFY_CONTROL }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_USER_ID: ${{ secrets.TG_USER_ID }}
